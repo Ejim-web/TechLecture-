@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TechLecture | AI Learning Platform</title>
+
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Firebase Modular SDK -->
+<script type="importmap">
+{
+  "imports": {
+    "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+    "firebase/auth": "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js",
+    "firebase/storage": "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"
+  }
+}
+</script>
+
+<style>
+/* ===============================
+   GLOBAL STYLES
+   =============================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0a0e1a;
+    color: #e0e6f0;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+    background: #f0f4f8;
+    color: #1a2332;
+}
+
+body.dark .header {
+    background: #ffffff;
+    border-bottom: 1px solid #e0e6f0;
+}
+
+body.dark .course-card {
+    background: #ffffff;
+    border-color: #e0e6f0;
+}
+
+body.dark .search-box input {
+    background: #ffffff;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .modal-box {
+    background: #ffffff;
+    border-color: #e0e6f0;
+}
+
+body.dark .modal-box input {
+    background: #f0f4f8;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .modal-box textarea {
+    background: #f0f4f8;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .ai-box {
+    background: #ffffff;
+    border-color: #e0e6f0;
+}
+
+body.dark #aiMessages {
+    background: #f0f4f8;
+}
+
+body.dark .ai-input input {
+    background: #f0f4f8;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .admin {
+    background: #ffffff;
+    border-color: #e0e6f0;
+}
+
+body.dark .admin input,
+body.dark .admin textarea {
+    background: #f0f4f8;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .toast {
+    background: #ffffff;
+    color: #1a2332;
+    border-left-color: #7b2ffc;
+}
+
+body.dark .stat-card {
+    background: #ffffff;
+    border-color: #e0e6f0;
+}
+
+body.dark .certificate input {
+    background: #ffffff;
+    border-color: #e0e6f0;
+    color: #1a2332;
+}
+
+body.dark .actions .btn {
+    color: #1a2332;
+}
+
+body.dark .actions .btn:hover {
+    background: #e0e6f0;
+}
+
+/* ===============================
+   TOAST NOTIFICATIONS
+   =============================== */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1a2332;
+    color: #e0e6f0;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border-left: 4px solid #00d4ff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    font-size: 14px;
+    animation: slideUp 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.toast i {
+    color: #00d4ff;
+    font-size: 18px;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===============================
+   HEADER / NAVBAR
+   =============================== */
+.header {
+    background: #111927;
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e2a3a;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo i {
+    -webkit-text-fill-color: #00d4ff;
+    font-size: 28px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.actions .btn {
+    background: none;
+    border: none;
+    color: #8899b4;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.actions .btn:hover {
+    background: #1e2a3a;
+    color: #e0e6f0;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #ff4757 !important;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logout-btn:hover {
+    background: #ff4757 !important;
+    color: white !important;
+}
+
+/* ===============================
+   BUTTONS
+   =============================== */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary {
+    background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 12px;
+}
+
+.btn-danger {
+    background: #ff4757;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #ff6b7a;
+}
+
+/* ===============================
+   HERO SECTION
+   =============================== */
+.hero {
+    padding: 60px 40px 40px;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.hero h1 span {
+    background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    color: #8899b4;
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto 24px;
+}
+
+/* ===============================
+   SEARCH BOX
+   =============================== */
+.search-box {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    gap: 12px;
+    padding: 0 20px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 14px 18px;
+    background: #111927;
+    border: 1px solid #1e2a3a;
+    border-radius: 12px;
+    color: #e0e6f0;
+    font-size: 14px;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.search-box button {
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-box button:hover {
+    transform: scale(1.05);
+}
+
+/* ===============================
+   COURSE GRID
+   =============================== */
+section h2 {
+    padding: 0 40px 20px;
+    font-size: 28px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+section h2 i {
+    color: #00d4ff;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 0 40px 60px;
+}
+
+.course-card {
+    background: #111927;
+    border: 1px solid #1e2a3a;
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.course-card:hover {
+    transform: translateY(-6px);
+    border-color: #00d4ff;
+    box-shadow: 0 12px 40px rgba(0, 212, 255, 0.08);
+}
+
+.card-thumb {
+    width: 100%;
+    height: 160px;
+    background: #0a0e1a;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    overflow: hidden;
+}
+
+.card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.course-card h3 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: #e0e6f0;
+}
+
+.course-card p {
+    color: #8899b4;
+    font-size: 14px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.course-card .card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ===============================
+   DASHBOARD
+   =============================== */
+.dashboard {
+    padding: 0 40px 40px;
+}
+
+.dashboard.hidden {
+    display: none;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 0 40px 40px;
+}
+
+.stat-card {
+    background: #111927;
+    border: 1px solid #1e2a3a;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-card p {
+    color: #8899b4;
+    margin-top: 8px;
+}
+
+/* ===============================
+   AI SECTION
+   =============================== */
+.ai-section {
+    padding: 0 40px 40px;
+}
+
+.ai-box {
+    background: #111927;
+    border: 1px solid #1e2a3a;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#aiMessages {
+    min-height: 120px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #0a0e1a;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.chat-user {
+    color: #00d4ff;
+    margin-bottom: 6px;
+}
+
+.chat-ai {
+    color: #7b2ffc;
+    margin-bottom: 6px;
+}
+
+.ai-input {
+    display: flex;
+    gap: 12px;
+}
+
+.ai-input input {
+    flex: 1;
+    padding: 12px 16px;
+    background: #0a0e1a;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    color: #e0e6f0;
+    font-size: 14px;
+}
+
+.ai-input input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+/* ===============================
+   CERTIFICATE SECTION
+   =============================== */
+.certificate {
+    padding: 0 40px 40px;
+}
+
+.certificate input {
+    padding: 14px 18px;
+    background: #111927;
+    border: 1px solid #1e2a3a;
+    border-radius: 12px;
+    color: #e0e6f0;
+    font-size: 14px;
+    width: 300px;
+    max-width: 100%;
+    margin-right: 12px;
+}
+
+.certificate input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+#certificateResult {
+    margin-top: 16px;
+    padding: 16px;
+    background: #111927;
+    border-radius: 10px;
+    border: 1px solid #1e2a3a;
+}
+
+/* ===============================
+   ADMIN PANEL
+   =============================== */
+.admin {
+    padding: 0 40px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.admin.hidden {
+    display: none;
+}
+
+.admin input,
+.admin textarea {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    background: #0a0e1a;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    color: #e0e6f0;
+    font-size: 14px;
+}
+
+.admin textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.admin input:focus,
+.admin textarea:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+#adminCourses {
+    margin-top: 20px;
+}
+
+/* ===============================
+   MODAL
+   =============================== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal:not(.hidden) {
+    display: flex;
+}
+
+.modal-box {
+    background: #111927;
+    padding: 40px;
+    border-radius: 20px;
+    width: 400px;
+    max-width: 90%;
+    border: 1px solid #1e2a3a;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-box h2 {
+    margin-bottom: 24px;
+    font-size: 24px;
+    text-align: center;
+}
+
+.modal-box input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    background: #0a0e1a;
+    border: 1px solid #1e2a3a;
+    border-radius: 10px;
+    color: #e0e6f0;
+    font-size: 14px;
+    transition: border 0.2s;
+}
+
+.modal-box input:focus {
+    outline: none;
+    border-color: #00d4ff;
+}
+
+.modal-box .primary,
+.modal-box .btn {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.modal-box .btn:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.modal-box #courseLink {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    margin: 16px 0;
+}
+
+/* ===============================
+   FOOTER
+   =============================== */
+footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #556688;
+    border-top: 1px solid #1e2a3a;
+    margin-top: 20px;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+@media (max-width: 768px) {
+    .header {
+        padding: 12px 20px;
+    }
+
+    .hero {
+        padding: 40px 20px 30px;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        padding: 0 20px 40px;
+    }
+
+    section h2 {
+        padding: 0 20px 16px;
+        font-size: 22px;
+    }
+
+    .modal-box {
+        padding: 30px 20px;
+    }
+
+    .dashboard {
+        padding: 0 20px 30px;
+    }
+
+    .dashboard-grid {
+        padding: 0 20px 30px;
+    }
+
+    .ai-section {
+        padding: 0 20px 30px;
+    }
+
+    .certificate {
+        padding: 0 20px 30px;
+    }
+
+    .certificate input {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 12px;
+    }
+
+    .admin {
+        padding: 0 20px 30px;
+    }
+
+    .search-box {
+        flex-direction: column;
+        padding: 0 20px;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<header class="header">
+    <div class="logo">
+        <i class="fa-solid fa-graduation-cap"></i>
+        TechLecture
+    </div>
+    <div class="actions">
+        <button class="btn" id="loginBtn">
+            <i class="fa-solid fa-user"></i>
+            Login
+        </button>
+        <button class="btn" id="themeBtn">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>
+        Learn Technology With 
+        <span>AI</span>
+    </h1>
+    <p>
+        Programming, Cybersecurity, Artificial Intelligence,
+        Cloud Computing and more.
+    </p>
+    <button class="primary" id="startLearningBtn">
+        Start Learning
+    </button>
+</section>
+
+<div class="search-box">
+    <input id="searchInput" placeholder="Search courses...">
+    <button id="searchBtn">
+        <i class="fa fa-search"></i>
+    </button>
+</div>
+
+<div id="categories" class="categories"></div>
+
+<section>
+    <h2>
+        <i class="fa-solid fa-star"></i>
+        Featured Courses
+    </h2>
+    <div id="courses" class="grid"></div>
+</section>
+
+<section id="dashboard" class="dashboard hidden">
+    <h2>
+        <i class="fa-solid fa-chart-line"></i>
+        Dashboard
+    </h2>
+    <div class="dashboard-grid">
+        <div class="stat-card">
+            <h3 id="courseCount">0</h3>
+            <p>Courses</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="progressCount">0%</h3>
+            <p>Progress</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="certificateCount">0</h3>
+            <p>Certificates</p>
+        </div>
+    </div>
+</section>
+
+<section class="ai-section">
+    <h2>
+        <i class="fa-solid fa-robot"></i>
+        AI Tutor
+    </h2>
+    <div class="ai-box">
+        <div id="aiMessages">
+            <p>AI Tutor ready.</p>
+        </div>
+        <div class="ai-input">
+            <input id="aiInput" placeholder="Ask a technology question">
+            <button id="sendAI" class="primary">Send</button>
+        </div>
+    </div>
+</section>
+
+<section class="certificate">
+    <h2>
+        <i class="fa-solid fa-certificate"></i>
+        Certificate Verification
+    </h2>
+    <input id="certificateID" placeholder="Certificate ID">
+    <button id="verifyCertificate" class="primary">Verify</button>
+    <p id="certificateResult"></p>
+</section>
+
+<section id="adminPanel" class="admin hidden">
+    <h2>
+        <i class="fa-solid fa-lock"></i>
+        Admin Panel
+    </h2>
+    <input id="courseName" placeholder="Course title">
+    <input id="courseCategory" placeholder="Category">
+    <textarea id="courseDescription" placeholder="Description"></textarea>
+    <input id="courseImage" placeholder="Image URL">
+    <input id="courseLink" placeholder="Course URL">
+    <button id="addCourse" class="primary">Add Course</button>
+    <div id="adminCourses"></div>
+</section>
+
+<!-- LOGIN MODAL -->
+<div id="authModal" class="modal hidden">
+    <div class="modal-box">
+        <h2 id="authModalTitle">Login</h2>
+        <input id="email" type="email" placeholder="Email">
+        <input id="password" type="password" placeholder="Password">
+        <button id="emailLogin" class="primary">Login / Signup</button>
+        <button id="googleLoginBtn" class="btn">
+            <i class="fa-brands fa-google"></i> Google
+        </button>
+        <button id="githubLoginBtn" class="btn">
+            <i class="fa-brands fa-github"></i> GitHub
+        </button>
+        <button id="closeModal" class="btn">Close</button>
+        <div style="text-align:center;margin-top:12px;">
+            <span id="authToggle" style="color:#00d4ff;cursor:pointer;">Create an account</span>
+        </div>
+    </div>
+</div>
+
+<!-- COURSE MODAL -->
+<div id="courseModal" class="modal hidden">
+    <div class="modal-box">
+        <h2 id="courseModalTitle"></h2>
+        <p id="courseModalDescription"></p>
+        <a id="courseModalLink" target="_blank" class="primary">Open Course</a>
+        <button id="closeCourse" class="btn">Close</button>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 TechLecture</p>
+</footer>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
